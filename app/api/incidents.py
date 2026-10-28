@@ -6,6 +6,7 @@ from app.db.repository import (
     get_incident_by_id,
     update_incident_status,
 )
+from app.services.log_analyzer import analyze_logs
 
 router = APIRouter(prefix="/incidents", tags=["Incidents"])
 
@@ -48,15 +49,23 @@ def get_incident(incident_id: int):
 @router.post("/")
 def create_incident_endpoint(incident: IncidentRequest):
     try:
-        saved_incident = create_incident(incident.model_dump())
+        log_analysis = analyze_logs(incident.log_text)
+
+        incident_data = incident.model_dump()
+        incident_data["severity"] = log_analysis["severity"]
+
+        saved_incident = create_incident(incident_data)
+
         return {
             "message": "Incident saved successfully",
             "incident": saved_incident,
+            "log_analysis": log_analysis,
         }
+
     except Exception:
         raise HTTPException(
             status_code=500,
-            detail="Failed to save incident to database",
+            detail="Failed to analyze logs or save incident",
         )
 
 
