@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from app.api.incidents import router as incidents_router
 from app.api.runbooks import router as runbooks_router
+from app.api.approvals import router as approvals_router
+
 
 app = FastAPI(
     title="OpsPilot AI",
@@ -10,6 +12,7 @@ app = FastAPI(
 
 app.include_router(incidents_router)
 app.include_router(runbooks_router)
+app.include_router(approvals_router)
 
 @app.get("/")
 def home():
